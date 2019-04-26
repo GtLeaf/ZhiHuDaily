@@ -6,5 +6,5 @@ package com.cmd.hit.zhihudaily.viewModel;
 
 public class MainActivityModel {
 
-    
+
 }
