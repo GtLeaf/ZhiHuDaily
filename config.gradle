@@ -33,6 +33,7 @@ project.ext {
             support_version    : '27.1.1',
             databinding_version: '3.1.4',
             retrofit2_version  : '2.3.0',
+            retrofit2_scalars_version  : '2.5.0',
             gson_version       : '2.8.5',
             rxandroid_version  : '2.1.0',
             rxjava_version     : '2.2.2',
@@ -54,6 +55,7 @@ project.ext {
     network = [
             retrofit           : "com.squareup.retrofit2:retrofit:$dependVersion.retrofit2_version",
             retrofit_converters: "com.squareup.retrofit2:converter-gson:$dependVersion.retrofit2_version",
+            retrofit_converters_scalars: "com.squareup.retrofit2:converter-scalars:$dependVersion.retrofit2_scalars_version",
             retrofit_adapters  : "com.squareup.retrofit2:adapter-rxjava2:$dependVersion.retrofit2_version"]
 
     gson = [gson: "com.google.code.gson:gson:$dependVersion.gson_version"]
