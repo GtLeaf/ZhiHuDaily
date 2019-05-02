@@ -1,8 +1,11 @@
 package com.cmd.hit.zhihudaily.model.local.dao;
 
+import android.arch.persistence.room.EmptyResultSetException;
+import android.content.Context;
 import android.preference.PreferenceManager;
 import android.util.ArrayMap;
 
+import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
@@ -13,34 +16,51 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.Single;
+
 /**
  * Created by PC-0775 on 2019/4/29.
  */
 
 public class NewsDao {
-    //key映射对应的id
-    private HashMap<String, String> newsKey2Id = new HashMap<>();
-    //id 1,2,3,4..映射对应的key
-    private HashMap<String, String> newsId2key = new HashMap<>();
+    private Gson gson;
 
-    /*
-    * 缓存新闻消息
-    * */
-    public void cacheNews(News news){
-        if (null == news) return;
-        String newsInfo = new Gson().toJson(news);
-        SPUtil.put(String.valueOf(news.getId()), newsInfo);
+    public NewsDao(){
+        this.gson = new Gson();
     }
 
     /*
     * 读取一个新闻消息
     * */
-    public News getCacheNews(String key){
+    public Observable<News> getCacheNews(String key){
         String newsInfo = SPUtil.get(key, "");
-        if (null != newsInfo){
-            return new Gson().fromJson(newsInfo, News.class);
+        if (  !newsInfo.equals("")){
+            return Observable.just(gson.fromJson(newsInfo, News.class));
+        }else {
+            return Observable.error(new EmptyResultSetException("result is null"));
         }
-        return null;
+    }
+
+    /*
+    * 获取最新消息
+    * */
+    public <T> Observable<T> getCache(String key, Class<T> classOfT){
+        String objInfo = SPUtil.get(key, "");
+        if (!objInfo.equals("")){
+            return Observable.just(gson.fromJson(objInfo, classOfT));
+        }else {
+            return Observable.error(new EmptyResultSetException("result is null"));
+        }
+    }
+
+    /*
+    * 缓存数据
+    * */
+    public <T> void cacheData(String key, T t){
+        if (null == t) return;
+        String objInfo = gson.toJson(t);
+        SPUtil.put(key, objInfo);
     }
 
 

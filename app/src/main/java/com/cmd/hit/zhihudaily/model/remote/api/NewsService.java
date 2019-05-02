@@ -1,8 +1,10 @@
 package com.cmd.hit.zhihudaily.model.remote.api;
 
+import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 
-import retrofit2.Call;
+import io.reactivex.Observable;
+
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -13,6 +15,9 @@ import retrofit2.http.Path;
 public interface NewsService {
 
     @GET("/api/4/news/{newsId}")
-    Call<News> getLatestNews(@Path("newsId") int newsId);
+    Observable<News> getNews(@Path("newsId") int newsId);
+
+    @GET("/api/4/news/latest")
+    Observable<LatestNews> getLatestNews();
 
 }

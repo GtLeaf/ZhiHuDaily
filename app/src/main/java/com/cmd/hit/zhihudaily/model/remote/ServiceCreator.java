@@ -2,6 +2,7 @@ package com.cmd.hit.zhihudaily.model.remote;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
@@ -11,7 +12,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ServiceCreator {
 
-    private ServiceCreator instance;
+    private static ServiceCreator instance;
 
     private static final String BASE_URL = "https://news-at.zhihu.com";
 
@@ -22,11 +23,12 @@ public class ServiceCreator {
             .client(httpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build();
 
     private ServiceCreator(){}
 
-    public ServiceCreator getInstance() {
+    public static ServiceCreator getInstance() {
         if (null == instance){
             synchronized (ServiceCreator.class){
                 if (null == instance){
