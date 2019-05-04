@@ -1,9 +1,6 @@
 package com.cmd.hit.zhihudaily.model.local.dao;
 
 import android.arch.persistence.room.EmptyResultSetException;
-import android.content.Context;
-import android.preference.PreferenceManager;
-import android.util.ArrayMap;
 
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
@@ -11,13 +8,8 @@ import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.reactivex.Observable;
-import io.reactivex.Single;
+import retrofit2.Response;
 
 /**
  * Created by PC-0775 on 2019/4/29.
@@ -63,8 +55,18 @@ public class NewsDao {
         SPUtil.put(key, objInfo);
     }
 
-
+    /*
+    * 缓存图片
+    * */
     public void cacheNewsPic(){
 
     }
+
+    /*
+    * 获取图片
+    * */
+    public Observable<Response<String>> getNewsPic(String url){
+        return null;
+    }
+
 }

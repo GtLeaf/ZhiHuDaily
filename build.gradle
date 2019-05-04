@@ -24,7 +24,7 @@ allprojects {
     //解决版本28出现androidJar的问题
     gradle.taskGraph.whenReady {
         tasks.each { task ->
-            if (task.name.equals('mockableAndroidJar')) {
+            if (task.name == 'mockableAndroidJar') {
                 task.enabled = false
             }
         }
