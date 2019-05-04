@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity implements ImageBarnnerFramLayout.FramLayoutListener {
 
     private ImageBarnnerFramLayout mGroup;
+
+    //图品资源
     private int[] ids = new int[]{
         R.drawable.image_0, R.drawable.image_1,
             R.drawable.image_2, R.drawable.image_3,
@@ -55,32 +57,16 @@ public class MainActivity extends AppCompatActivity implements ImageBarnnerFramL
         ImageBarnnerFramLayout.WIDTH = dm.widthPixels;
 
         mGroup = findViewById(R.id.image_group);
-        mGroup.setListener(this);
+        mGroup.setListener(this);//设置点击事件
         List<Bitmap> list = new ArrayList<>();
         for(int i = 0; i < imageUrl.length; i++){
-
+            //拿到图片资源
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), ids[i]);
+            //将图片添加到list中
             list.add(bitmap);
+            //可以再添加一个list存放图片的索引id
         }
         mGroup.addBitmaps(list);
-    }
-
-    private Drawable loadImageFromNetwork(String imageUrl)
-    {
-        Drawable drawable = null;
-        try {
-            // 可以在这里通过文件名来判断，是否本地有此图片
-            drawable = Drawable.createFromStream(
-                    new URL(imageUrl).openStream(), "image.jpg");
-        } catch (IOException e) {
-            Log.d("test", e.getMessage());
-        }
-        if (drawable == null) {
-            Log.d("test", "null drawable");
-        } else {
-            Log.d("test", "not null drawable");
-        }
-        return drawable ;
     }
 
     @Override
