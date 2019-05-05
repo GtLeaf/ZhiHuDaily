@@ -1,9 +1,13 @@
 package com.cmd.hit.zhihudaily.model.local.dao;
 
 import android.arch.persistence.room.EmptyResultSetException;
+import android.graphics.Bitmap;
+import android.util.LruCache;
 
+import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
+import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
 import com.google.gson.Gson;

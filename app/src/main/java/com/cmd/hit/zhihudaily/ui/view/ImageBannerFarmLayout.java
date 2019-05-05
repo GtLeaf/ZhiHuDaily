@@ -17,7 +17,7 @@ import com.cmd.hit.zhihudaily.R;
 
 import java.util.List;
 
-public class ImageBarnnerFramLayout extends FrameLayout implements ImageBarnnerViewGroup.ImageBarnnerViewGroupListener,ImageBarnnerViewGroup.ImageBarnnerListener {
+public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerViewGroup.ImageBarnnerViewGroupListener,ImageBarnnerViewGroup.ImageBarnnerListener {
 
     private ImageBarnnerViewGroup imageBarnnerViewGroup;
     private LinearLayout linearLayout;
@@ -34,19 +34,19 @@ public class ImageBarnnerFramLayout extends FrameLayout implements ImageBarnnerV
         this.listener = listener;
     }
 
-    public ImageBarnnerFramLayout(@NonNull Context context) {
+    public ImageBannerFarmLayout(@NonNull Context context) {
         super(context);
         initImageBarnnerViewGroup();
         initDotLinearlayout();
     }
 
-    public ImageBarnnerFramLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public ImageBannerFarmLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initImageBarnnerViewGroup();
         initDotLinearlayout();
     }
 
-    public ImageBarnnerFramLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ImageBannerFarmLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initImageBarnnerViewGroup();
         initDotLinearlayout();

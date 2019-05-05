@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 public class NewsExecutors {
     private final ExecutorService diskIO = Executors.newSingleThreadExecutor();
-    private final ExecutorService networkIO = Executors.newFixedThreadPool(3);
+    public final ExecutorService networkIO = Executors.newFixedThreadPool(6);
     private final ExecutorService mainThread = Executors.newFixedThreadPool(3);
 
     class MainThreadExecutor implements Executor{

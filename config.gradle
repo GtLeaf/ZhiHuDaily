@@ -39,7 +39,8 @@ project.ext {
             rxjava_version     : '2.2.2',
             stetho_version     : '1.5.0',
             room_version       : '1.1.1',
-            okhttp_version     : '3.11.0'
+            okhttp_version     : '3.11.0',
+            glide_version     : '3.7.0',
     ]
 
     //*************************类库maven地址**************************
@@ -76,6 +77,7 @@ project.ext {
 
     okhttpLibs = [okhttp   : "com.squareup.okhttp3:okhttp:$dependVersion.okhttp_version",
                   okhttplog: "com.squareup.okhttp3:logging-interceptor:$dependVersion.okhttp_version"]
+    glideLib = [glide   :"com.github.bumptech.glide:glide:$dependVersion.glide_version"]//4.8.0
 
     //********************项目依赖列表**********************
     kotlinDeps = [kotlin_base.values()]
@@ -87,4 +89,5 @@ project.ext {
     roomDeps = [roomLib.values()]
     roomDep = [room.values()]
     okhttpDep = [okhttpLibs.values()]
+    glidepDep = [glideLib.values()]
 }
