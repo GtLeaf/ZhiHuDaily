@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +34,7 @@ import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
+import com.cmd.hit.zhihudaily.ui.view.MyScrollView;
 import com.cmd.hit.zhihudaily.viewModel.MainViewModel;
 
 import java.lang.ref.WeakReference;
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity{
     private ImageBannerFarmLayout mGroup;
     private TextView tv_offlineDownload;
     private NavigationView nav_headerView;
+    private MyScrollView sv_homeNews;
 
     //resourcess
     private List<Bitmap> topBitmapList = new ArrayList<>();
@@ -139,6 +144,8 @@ public class MainActivity extends AppCompatActivity{
         nav_headerView = findViewById(R.id.nav_header_view);
         //离线下载按钮
         tv_offlineDownload = nav_headerView.getHeaderView(0).findViewById(R.id.tv_offline_download);
+        //scrollView
+        sv_homeNews = findViewById(R.id.sv_home_news);
 
         //SPUtil
         SPUtil.setContext(this);
@@ -155,12 +162,25 @@ public class MainActivity extends AppCompatActivity{
         newsAdapter = new NewsAdapter();
         newsListRecyclerView.setAdapter(newsAdapter);
         newsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        newsListRecyclerView.setHasFixedSize(true);
+//        newsListRecyclerView.setNestedScrollingEnabled(false);
+//        newsListRecyclerView.setFocusable(false);
         //获取最近三天
         addNewsToRecyclerView(currentDate.getTime());
         currentDate.add(Calendar.DAY_OF_MONTH,-1);
         addNewsToRecyclerView(currentDate.getTime());
         currentDate.add(Calendar.DAY_OF_MONTH,-1);
         addNewsToRecyclerView(currentDate.getTime());
+
+        sv_homeNews.setOnScrollBottomListener(new MyScrollView.OnScrollBottomListener() {
+            @Override
+            public void scrollToBottom() {
+                // 加载更多
+                currentDate.add(Calendar.DAY_OF_MONTH,-1);
+                Log.v("日期",currentDate.getTime().toString());
+                addNewsToRecyclerView(currentDate.getTime());
+            }
+        });
         newsListRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(){
             @Override
             public void onScrollToBottom() {

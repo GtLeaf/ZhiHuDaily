@@ -1,13 +1,12 @@
 package com.cmd.hit.zhihudaily.ui.view;
 
-import android.app.Notification;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -22,15 +21,19 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
     private ImageBarnnerViewGroup imageBarnnerViewGroup;
     private LinearLayout linearLayout;
 
+    //上次点击的位置
+    float lastX = 0f;
+    float lastY = 0f;
+
     public static int WIDTH = 0;
 
-    private FramLayoutListener listener;
+    private FarmLayoutListener listener;
 
-    public FramLayoutListener getListener() {
+    public FarmLayoutListener getListener() {
         return listener;
     }
 
-    public void setListener(FramLayoutListener listener) {
+    public void setListener(FarmLayoutListener listener) {
         this.listener = listener;
     }
 
@@ -131,7 +134,40 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
         listener.clickImageIndex(pos);
     }
 
-    public interface FramLayoutListener{
+    public interface FarmLayoutListener {
         void clickImageIndex(int pos);
+    }
+
+    /*
+    * 为解决scroll滑动冲突
+    * */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        float x = ev.getX();
+        float y = ev.getY();
+        float xDistance = 0f;
+        float yDistance = 0f;
+
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                getParent().requestDisallowInterceptTouchEvent(true);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                xDistance += Math.abs(x - lastX);
+                yDistance += Math.abs(y - lastY);
+                lastX = x;
+                lastY = y;
+                if (xDistance >= yDistance){
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }else {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                    return false;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return super.dispatchTouchEvent(ev);
     }
 }

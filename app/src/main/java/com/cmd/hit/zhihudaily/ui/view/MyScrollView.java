@@ -3,19 +3,21 @@ package com.cmd.hit.zhihudaily.ui.view;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ScrollView;
 
 /**
  * Created by PC-0775 on 2019/5/6.
  */
 
-public class MyScrollView extends ScrollView {
-    private float xDistance;
-    private float yDistance;
-    private float xLast;
-    private float yLast;
+public class MyScrollView extends NestedScrollView {
+    private int calCount = 0;
+
+
+    private OnScrollBottomListener listener;
 
     public MyScrollView(Context context) {
         super(context);
@@ -29,31 +31,27 @@ public class MyScrollView extends ScrollView {
         super(context, attrs, defStyleAttr);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public MyScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+    public void setOnScrollBottomListener(OnScrollBottomListener listener){
+        this.listener = listener;
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        switch (ev.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                xDistance = yDistance = 0f;
-                xLast = ev.getX();
-                yLast = ev.getY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                float curX = ev.getX();
-                float curY = ev.getY();
-                xDistance = Math.abs(curX - xLast);
-                yDistance = Math.abs(curY - yLast);
-                if (xDistance >= yDistance){
-                    return false;
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+//        super.onScrollChanged(l, t, oldl, oldt);
+        View view = this.getChildAt(0);
+        if (getHeight() + getScrollY() == view.getHeight()){
+            calCount++;
+            if (1 == calCount){
+                if (listener != null){
+                    listener.scrollToBottom();
                 }
-                break;
-            default:
-                break;
+            }
+        }else {
+            calCount = 0;
         }
-        return super.onInterceptTouchEvent(ev);
+    }
+
+    public interface  OnScrollBottomListener{
+        void scrollToBottom();
     }
 }
