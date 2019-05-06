@@ -1,5 +1,6 @@
 package com.cmd.hit.zhihudaily.model.remote.api;
 
+import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 
@@ -19,5 +20,8 @@ public interface NewsService {
 
     @GET("/api/4/news/latest")
     Observable<LatestNews> getLatestNews();
+
+    @GET("/api/4/news/before/{date}")
+    Observable<BeforeNews> getBeforeNews(@Path("date") String date);
 
 }

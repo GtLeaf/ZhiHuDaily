@@ -2,6 +2,7 @@ package com.cmd.hit.zhihudaily.model.repository;
 
 import android.content.Context;
 
+import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
@@ -35,12 +36,24 @@ public class NewsRepository {
                                 .doOnNext(news -> dao.cacheData(news.getId()+"", news)));
     }
 
-    //获取某日新闻摘要
-    public Observable<LatestNews> getLatestNews(String key){
+    //获取过往新闻摘要
+    public Observable<BeforeNews> getBeforeNews(String key){
+        String cacheKeyPrefix = "before:";
         //组装key
-        return dao.getCache(key, LatestNews.class)
+        return dao.getCache(cacheKeyPrefix+key, BeforeNews.class)
+                .onErrorResumeNext(network.getBeforeNews(key)
+                        .doOnNext(beforeNews -> dao.cacheData(cacheKeyPrefix+beforeNews.getDate(), beforeNews))
+                );
+    }
+
+    //获取当日新闻摘要
+    public Observable<LatestNews> getLatestNews(){
+        String cacheKeyPrefix = "latest:";
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
+        //组装key
+        return dao.getCache(cacheKeyPrefix+key, LatestNews.class)
                 .onErrorResumeNext(network.getLatestNews()
-                        .doOnNext(latestNews -> dao.cacheData(latestNews.getDate(), latestNews))
+                        .doOnNext(latestNews -> dao.cacheData(cacheKeyPrefix+latestNews.getDate(), latestNews))
                 );
     }
 }

@@ -1,16 +1,20 @@
 package com.cmd.hit.zhihudaily.ui;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity{
     //view
     private ImageBannerFarmLayout mGroup;
     private TextView tv_offlineDownload;
+    private NavigationView nav_headerView;
 
     //resourcess
     private List<Bitmap> topBitmapList = new ArrayList<>();
@@ -116,6 +120,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void init(){
+        //toolbar
+        Toolbar toolbar = findViewById(R.id.home_toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getActionBar();
+        if (null != actionBar){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         //设置图片完全填充
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -123,7 +135,10 @@ public class MainActivity extends AppCompatActivity{
 
         //轮播图
         mGroup = findViewById(R.id.image_group);
-        tv_offlineDownload = findViewById(R.id.tv_offline_download);
+        //侧滑栏头部
+        nav_headerView = findViewById(R.id.nav_header_view);
+        //离线下载按钮
+        tv_offlineDownload = nav_headerView.getHeaderView(0).findViewById(R.id.tv_offline_download);
 
         //SPUtil
         SPUtil.setContext(this);
@@ -238,5 +253,10 @@ public class MainActivity extends AppCompatActivity{
         .subscribe(newsList::add);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
 
 }

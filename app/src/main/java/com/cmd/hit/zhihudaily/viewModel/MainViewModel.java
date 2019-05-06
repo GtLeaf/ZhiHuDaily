@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
@@ -42,7 +43,10 @@ public class MainViewModel {
     }
 
     public Observable<LatestNews> getLatestNewsObservable(String key){
-        return repository.getLatestNews(key);
+        return repository.getLatestNews();
+    }
+    public Observable<BeforeNews> getBeforeNewsObservable2(String key){
+        return repository.getBeforeNews(key);
     }
     public Observable<News> getNewsObservable(int newsId){
         return repository.getNewsItem(newsId);
