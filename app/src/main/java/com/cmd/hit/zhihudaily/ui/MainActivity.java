@@ -2,9 +2,14 @@ package com.cmd.hit.zhihudaily.ui;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmd.hit.zhihudaily.R;
@@ -19,17 +24,14 @@ import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
 import com.cmd.hit.zhihudaily.viewModel.MainActivityModel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -38,29 +40,57 @@ import io.reactivex.schedulers.Schedulers;
 //链接MUMU模拟器的命令行，命令：adb connect 127.0.0.1:7555
 public class MainActivity extends AppCompatActivity implements ImageBannerFarmLayout.FramLayoutListener {
 
-    //图品资源
-    private int[] ids = new int[]{
-        R.drawable.image_0, R.drawable.image_1,
-            R.drawable.image_2, R.drawable.image_3,
-            R.drawable.image_4, R.drawable.image_5,
-            R.drawable.image_6
-    };
-    public String[] imageUrl = new String[]{
-        "https://pic4.zhimg.com/v2-8b8c2bffdcf1de2d2a92cf2e01a8db93.jpg",
-            "https://pic4.zhimg.com/v2-107b89ac48f7b176242773be48e1eeaf.jpg",
-            "https://pic2.zhimg.com/v2-5599a0274655bf331451cb8123647269.jpg",
-            "https://pic1.zhimg.com/v2-5b3e7329c52777a9e2002a36ad83a73c.jpg",
-            "https://pic4.zhimg.com/v2-0ef521d955bce4c1bc63073215d88a07.jpg"
-    };
-
     //view
-    ImageBannerFarmLayout mGroup;
+    private ImageBannerFarmLayout mGroup;
+    private TextView tv_offlineDownload;
 
     //resourcess
+    private List<Bitmap> topBitmapList = new ArrayList<>();
     private List<Bitmap> bitmapList = new ArrayList<>();
+    private List<News> topNewsList = new ArrayList<>();
+    private List<News> newsList = new ArrayList<>();
+    private LatestNews latestNews;
 
     //model
     private MainActivityModel model;
+
+    //what
+    public static final int NEWS = 1;
+    public static final int TOP_NEWS = 2;
+    public static final int TOP_COVER_IMAGE = 3;
+    public static final int COVER_IMAGE = 4;
+
+    //Handler
+    MyHandler handler = new MyHandler(this);
+    static class MyHandler extends Handler{
+        WeakReference<MainActivity> weakReference;
+
+        MyHandler(MainActivity mainActivity){
+            weakReference = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = weakReference.get();
+
+            switch (msg.what){
+                case TOP_NEWS:
+                    break;
+                case NEWS:
+                    break;
+                case TOP_COVER_IMAGE:
+                    Bitmap topBitmap = (Bitmap) msg.obj;
+                    activity.mGroup.addBitmap(topBitmap);
+                    break;
+                case COVER_IMAGE:
+                    Bitmap bitmap = (Bitmap) msg.obj;
+                    activity.bitmapList.add(bitmap);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
 
         //轮播图
         mGroup = findViewById(R.id.image_group);
+        tv_offlineDownload = findViewById(R.id.tv_offline_download);
+
         //SPUtil
         SPUtil.setContext(this);
 
@@ -96,32 +128,49 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
         NewsDao dao = new NewsDao();
         NewsService service = ServiceCreator.getInstance().create(NewsService.class);
         NewsRepository repository = new NewsRepository(dao, service);
-        model = new MainActivityModel(repository, this);
+        PhotoCacheHelper helper = new PhotoCacheHelper(this, handler);
+        model = new MainActivityModel(repository, helper);
     }
 
     private void setListener(){
         mGroup.setListener(this);//设置点击事件
-        model.setOnGetBitmapListener(new PhotoCacheHelper.OnGetBitmapListener() {
-            @Override
-            public void onGetBitmap(Bitmap bitmap) {
-                bitmapList.add(bitmap);
-//                mGroup.addBitmaps(bitmapList);
-            }
-        });
+        //离线缓存点击事件
+        tv_offlineDownload.setOnClickListener(v -> {
+            //轮播新闻id
+            List<Integer> topNewsId = new ArrayList<>();
+            //普通新闻id
+            List<Integer> newsId = new ArrayList<>();
 
+            for (LatestNews.TopStoriesBean bean : latestNews.getTop_stories()){
+                //获取图片
+                model.loadBitmap(bean.getImage(), TOP_COVER_IMAGE);
+                topNewsId.add(bean.getId());
+            }
+            for (LatestNews.StoriesBean bean : latestNews.getStories()){
+                //获取图片
+                model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
+                newsId.add(bean.getId());
+            }
+            requestNews(topNewsId, topNewsList);
+            requestNews(newsId, newsList);
+        });
     }
 
     private void doBusiness(){
+        //请求新闻摘要
         model.getLatestNewsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(latestNews -> Observable.create((ObservableOnSubscribe<String>) emitter -> {
+                .subscribe(latestNews -> {
+                    this.latestNews = latestNews;
                     for (LatestNews.TopStoriesBean bean : latestNews.getTop_stories()){
-                        emitter.onNext(bean.getImage());
+                        //获取轮播图片
+                        model.loadBitmap(bean.getImage(), TOP_COVER_IMAGE);
                     }
-                }))
-                .subscribe(s -> {
-                    model.loadBitmap(s);
+                    for (LatestNews.StoriesBean bean : latestNews.getStories()){
+                        //获取图片
+                        model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
+                    }
                 });
 
     }
@@ -130,4 +179,23 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
     public void clickImageIndex(int pos) {
         Toast.makeText(this,"pos=" + pos, Toast.LENGTH_SHORT).show();
     }
+
+
+    /**
+     * 根据id获取news
+     * @param newsIdList    news的ID
+     * @param newsList      news
+     */
+    public void requestNews(List<Integer> newsIdList, List<News> newsList){
+        Observable.create((ObservableOnSubscribe<Integer>) emitter -> {
+            for (int id : newsIdList){
+                emitter.onNext(id);
+            }
+        }).subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .flatMap(integer -> model.getNewsObservable(integer))
+        .subscribe(newsList::add);
+    }
+
+
 }

@@ -22,10 +22,9 @@ public class MainActivityModel {
     private NewsRepository repository;
     private PhotoCacheHelper photoCacheHelper;
 
-    public MainActivityModel(NewsRepository repository, Context context){
+    public MainActivityModel(NewsRepository repository, PhotoCacheHelper photoCacheHelper){
         this.repository = repository;
-        this.photoCacheHelper = new PhotoCacheHelper(context);
-
+        this.photoCacheHelper = photoCacheHelper;
     }
 
 
@@ -38,12 +37,8 @@ public class MainActivityModel {
         photoCacheHelper.loadBitmap(url, imageView);
     }
 
-    public void loadBitmap(String url){
-        photoCacheHelper.loadBitmap(url);
-    }
-
-    public void setOnGetBitmapListener(PhotoCacheHelper.OnGetBitmapListener listener){
-        photoCacheHelper.setOnGetBitmapListener(listener);
+    public void loadBitmap(String url, int what){
+        photoCacheHelper.loadBitmap(url, what);
     }
 
     public Observable<LatestNews> getLatestNewsObservable(){

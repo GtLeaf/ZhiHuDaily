@@ -7,11 +7,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.Message;
 import android.util.LruCache;
 import android.widget.ImageView;
 
-import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
+import com.cmd.hit.zhihudaily.ui.MainActivity;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.BufferedInputStream;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,12 +50,11 @@ public class PhotoCacheHelper {
     //主线程Handler 用来图片下载完成后更新ImageView
     private Handler mHandler;
 
-    private OnGetBitmapListener listener;
-
     private Context context;
 
-    public PhotoCacheHelper(Context context){
+    public PhotoCacheHelper(Context context, Handler mHandler){
         this.context = context;
+        this.mHandler = mHandler;
         init();
     }
 
@@ -139,26 +137,22 @@ public class PhotoCacheHelper {
         }
     }
 
-    public void loadBitmap(String url){
+    public void loadBitmap(String url, int what){
         //从缓存中获取Bitmap
         Bitmap bitmap = mMemoryCache.get(url);
         //如果不在缓存中
         if(null != bitmap){
-            listener.onGetBitmap(bitmap);
+            sendBitmapByMessage(bitmap, what);
         }else {
             //开启线程查询
-            service.execute(new ImageRunnable(url));
+            service.execute(new ImageRunnable(url, what));
         }
-    }
-
-    public void setOnGetBitmapListener(OnGetBitmapListener listener){
-        this.listener = listener;
     }
 
     /**
      * 使用MD5进行加密,获取缓存的key
-     * @param key
-     * @return
+     * @param key   图片地址
+     * @return      MD5加密后的串
      */
     private String hashKeyForDisk(String key){
         String cacheKey;
@@ -195,8 +189,8 @@ public class PhotoCacheHelper {
 
     /**
      * 下载图片
-     * @param url
-     * @param outputStream
+     * @param url           图片地址
+     * @param outputStream  输出流
      * @return
      */
     private boolean downloadImage(final String url, OutputStream outputStream){
@@ -225,8 +219,12 @@ public class PhotoCacheHelper {
             e.printStackTrace();
         }finally {
             try{
-                in.close();
-                out.close();
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -248,8 +246,8 @@ public class PhotoCacheHelper {
 
     /**
      * 从内存中获取Bitmap
-     * @param url
-     * @return
+     * @param url   图片地址
+     * @return      图片
      */
     private Bitmap getBitmapFromMemoryCache(String url){
         return mMemoryCache.get(url);
@@ -271,7 +269,7 @@ public class PhotoCacheHelper {
         }
     }
 
-    public void clearDiskMiskMemory(){
+    public void clearDiskMemory(){
         try {
             mDiskCache.delete();
         } catch (IOException e) {
@@ -283,9 +281,11 @@ public class PhotoCacheHelper {
         private String url;
         private Bitmap bitmap;
         private ImageView imageView;
+        private int what;
 
-        ImageRunnable(String url){
+        ImageRunnable(String url, int what){
             this.url = url;
+            this.what = what;
         }
 
         ImageRunnable(String url, ImageView imageView){
@@ -329,18 +329,26 @@ public class PhotoCacheHelper {
             if (bitmap != null){
                 //将图片添加到内存缓存中
                 addBitmapToMemoryCache(bitmap, url);
-                if (listener != null){
-                    listener.onGetBitmap(bitmap);
-                }else if(imageView != null){
-                    new Handler(Looper.getMainLooper())
-                            .post(() -> imageView.setImageBitmap(bitmap));
+                if(imageView != null){
+                    mHandler.post(() -> imageView.setImageBitmap(bitmap));
+                }
+                if (what != 0){
+                    sendBitmapByMessage(bitmap, what);
                 }
             }
         }
     }
 
-    public interface OnGetBitmapListener{
-        void onGetBitmap(Bitmap bitmap);
+    /**
+     * 将bitmap发送回主线程
+     * @param bitmap 图片
+     */
+    private void sendBitmapByMessage(Bitmap bitmap, int what){
+        //发送消息
+        Message message = Message.obtain();
+        message.what = what;
+        message.obj = bitmap;
+        mHandler.sendMessage(message);
     }
 
 

@@ -59,6 +59,10 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
             addDotToLinearlayout();
         }
     }
+    public void addBitmap(Bitmap bitmap){
+        addBitmapToImageBarnnerViewGroup(bitmap);
+        addDotToLinearlayout();
+    }
 
     private void addDotToLinearlayout(){
         ImageView iv = new ImageView(getContext());
