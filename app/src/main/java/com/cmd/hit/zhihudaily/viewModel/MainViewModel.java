@@ -16,13 +16,13 @@ import io.reactivex.Observable;
  * Created by PC-0775 on 2019/4/26.
  */
 
-public class MainActivityModel {
+public class MainViewModel {
 
     //News的数据仓库
     private NewsRepository repository;
     private PhotoCacheHelper photoCacheHelper;
 
-    public MainActivityModel(NewsRepository repository, PhotoCacheHelper photoCacheHelper){
+    public MainViewModel(NewsRepository repository, PhotoCacheHelper photoCacheHelper){
         this.repository = repository;
         this.photoCacheHelper = photoCacheHelper;
     }

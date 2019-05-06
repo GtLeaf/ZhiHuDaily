@@ -7,8 +7,6 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +20,7 @@ import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
-import com.cmd.hit.zhihudaily.viewModel.MainActivityModel;
+import com.cmd.hit.zhihudaily.viewModel.MainViewModel;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -32,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -55,7 +52,7 @@ public class MainActivity extends AppCompatActivity{
     private LatestNews latestNews;
 
     //model
-    private MainActivityModel model;
+    private MainViewModel model;
 
     //what
     public static final int NEWS = 1;
@@ -123,7 +120,7 @@ public class MainActivity extends AppCompatActivity{
         NewsService service = ServiceCreator.getInstance().create(NewsService.class);
         NewsRepository repository = new NewsRepository(dao, service);
         PhotoCacheHelper helper = new PhotoCacheHelper(this, handler);
-        model = new MainActivityModel(repository, helper);
+        model = new MainViewModel(repository, helper);
     }
 
     //设置事件监听
