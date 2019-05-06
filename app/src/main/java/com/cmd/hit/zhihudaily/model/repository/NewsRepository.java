@@ -35,10 +35,9 @@ public class NewsRepository {
                                 .doOnNext(news -> dao.cacheData(news.getId()+"", news)));
     }
 
-    //获取最新新闻摘要
-    public Observable<LatestNews> getLatestNews(){
+    //获取某日新闻摘要
+    public Observable<LatestNews> getLatestNews(String key){
         //组装key
-        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         return dao.getCache(key, LatestNews.class)
                 .onErrorResumeNext(network.getLatestNews()
                         .doOnNext(latestNews -> dao.cacheData(latestNews.getDate(), latestNews))

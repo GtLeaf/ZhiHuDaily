@@ -25,8 +25,11 @@ import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
 import com.cmd.hit.zhihudaily.viewModel.MainActivityModel;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -38,7 +41,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by PC-0775 on 2019/4/26.
  */
 //链接MUMU模拟器的命令行，命令：adb connect 127.0.0.1:7555
-public class MainActivity extends AppCompatActivity implements ImageBannerFarmLayout.FramLayoutListener {
+public class MainActivity extends AppCompatActivity{
 
     //view
     private ImageBannerFarmLayout mGroup;
@@ -100,15 +103,6 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
         init();
         setListener();
         doBusiness();
-       /* for(int i = 0; i < imageUrl.length; i++){
-            //拿到图片资源
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), ids[i]);
-            //将图片添加到list中
-            list.add(bitmap);
-            //可以再添加一个list存放图片的索引id
-        }*/
-
-
     }
 
     private void init(){
@@ -132,8 +126,12 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
         model = new MainActivityModel(repository, helper);
     }
 
+    //设置事件监听
     private void setListener(){
-        mGroup.setListener(this);//设置点击事件
+        //设置轮播图点击事件
+        mGroup.setListener(pos -> {
+            Toast.makeText(this,"pos=" + pos, Toast.LENGTH_SHORT).show();
+        });
         //离线缓存点击事件
         tv_offlineDownload.setOnClickListener(v -> {
             //轮播新闻id
@@ -157,8 +155,9 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
     }
 
     private void doBusiness(){
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         //请求新闻摘要
-        model.getLatestNewsObservable()
+        model.getLatestNewsObservable(key)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(latestNews -> {
@@ -174,12 +173,6 @@ public class MainActivity extends AppCompatActivity implements ImageBannerFarmLa
                 });
 
     }
-
-    @Override
-    public void clickImageIndex(int pos) {
-        Toast.makeText(this,"pos=" + pos, Toast.LENGTH_SHORT).show();
-    }
-
 
     /**
      * 根据id获取news

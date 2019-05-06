@@ -41,8 +41,8 @@ public class MainActivityModel {
         photoCacheHelper.loadBitmap(url, what);
     }
 
-    public Observable<LatestNews> getLatestNewsObservable(){
-        return repository.getLatestNews();
+    public Observable<LatestNews> getLatestNewsObservable(String key){
+        return repository.getLatestNews(key);
     }
     public Observable<News> getNewsObservable(int newsId){
         return repository.getNewsItem(newsId);
