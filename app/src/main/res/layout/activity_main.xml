@@ -25,28 +25,30 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!--<ScrollView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 
-            <com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout
-                android:id="@+id/image_group"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            </com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout>
+                <com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout
+                    android:id="@+id/image_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_home_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
-            </android.support.v7.widget.RecyclerView>
-        </LinearLayout>
+                </com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout>
 
-
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_home_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
+        <!--</ScrollView>-->
 
     </android.support.design.widget.CoordinatorLayout>
 
