@@ -1,11 +1,14 @@
 package com.cmd.hit.zhihudaily.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -21,13 +24,18 @@ import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
+import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
+import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
+import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
 import com.cmd.hit.zhihudaily.viewModel.MainActivityModel;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,6 +70,10 @@ public class MainActivity extends AppCompatActivity{
     public static final int TOP_NEWS = 2;
     public static final int TOP_COVER_IMAGE = 3;
     public static final int COVER_IMAGE = 4;
+
+    private RecyclerView newsListRecyclerView;
+    private NewsAdapter newsAdapter;
+    private Calendar currentDate = Calendar.getInstance();
 
     //Handler
     MyHandler handler = new MyHandler(this);
@@ -124,6 +136,27 @@ public class MainActivity extends AppCompatActivity{
         NewsRepository repository = new NewsRepository(dao, service);
         PhotoCacheHelper helper = new PhotoCacheHelper(this, handler);
         model = new MainActivityModel(repository, helper);
+
+        //初始化recyclerView
+        newsListRecyclerView = findViewById(R.id.rv_home_list);
+        newsAdapter = new NewsAdapter();
+        newsListRecyclerView.setAdapter(newsAdapter);
+        newsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //获取最近三天
+        addNewsToRecyclerView(currentDate.getTime());
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        addNewsToRecyclerView(currentDate.getTime());
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        addNewsToRecyclerView(currentDate.getTime());
+        newsListRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(){
+            @Override
+            public void onScrollToBottom() {
+                // 加载更多
+                currentDate.add(Calendar.DAY_OF_MONTH,-1);
+                Log.v("日期",currentDate.getTime().toString());
+                addNewsToRecyclerView(currentDate.getTime());
+            }
+        });
     }
 
     //设置事件监听
@@ -154,6 +187,21 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    private void addNewsToRecyclerView(Date date){
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(date);
+        model.getLatestNewsObservable(key)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(latestNews -> {
+                    for(int i=0;i<latestNews.getStories().size();i++){
+                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getTitle(),
+                                latestNews.getStories().get(i).getImages().get(0));
+                        newsAdapter.addNews(news);
+                    }
+                });
+    }
+
+    @SuppressLint("CheckResult")
     private void doBusiness(){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         //请求新闻摘要
@@ -170,6 +218,7 @@ public class MainActivity extends AppCompatActivity{
                         //获取图片
                         model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
                     }
+
                 });
 
     }
@@ -179,6 +228,7 @@ public class MainActivity extends AppCompatActivity{
      * @param newsIdList    news的ID
      * @param newsList      news
      */
+    @SuppressLint("CheckResult")
     public void requestNews(List<Integer> newsIdList, List<News> newsList){
         Observable.create((ObservableOnSubscribe<Integer>) emitter -> {
             for (int id : newsIdList){
