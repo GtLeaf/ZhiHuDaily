@@ -13,10 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +32,7 @@ import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
+import com.cmd.hit.zhihudaily.ui.adapter.HeaderAndFooterWrapper;
 import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
@@ -60,7 +63,6 @@ public class MainActivity extends AppCompatActivity{
     private ImageBannerFarmLayout mGroup;
     private TextView tv_offlineDownload;
     private NavigationView nav_headerView;
-    private MyScrollView sv_homeNews;
 
     //resourcess
     private List<Bitmap> topBitmapList = new ArrayList<>();
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity{
     private RecyclerView newsListRecyclerView;
     private NewsAdapter newsAdapter;
     private Calendar currentDate = Calendar.getInstance();
+    private HeaderAndFooterWrapper headerAndFooterWrapper;
 
     //Handler
     MyHandler handler = new MyHandler(this);
@@ -139,14 +142,10 @@ public class MainActivity extends AppCompatActivity{
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         ImageBannerFarmLayout.WIDTH = dm.widthPixels;
 
-        //轮播图
-        mGroup = findViewById(R.id.image_group);
         //侧滑栏头部
         nav_headerView = findViewById(R.id.nav_header_view);
         //离线下载按钮
         tv_offlineDownload = nav_headerView.getHeaderView(0).findViewById(R.id.tv_offline_download);
-        //scrollView
-        sv_homeNews = findViewById(R.id.sv_home_news);
 
         //SPUtil
         SPUtil.setContext(this);
@@ -160,12 +159,18 @@ public class MainActivity extends AppCompatActivity{
 
         //初始化recyclerView
         newsListRecyclerView = findViewById(R.id.rv_home_list);
+
         newsAdapter = new NewsAdapter();
-        newsListRecyclerView.setAdapter(newsAdapter);
+
+        headerAndFooterWrapper = new HeaderAndFooterWrapper(newsAdapter);
+
+        mGroup = new ImageBannerFarmLayout(this);
+
+        headerAndFooterWrapper.addHeaderView(mGroup);
+
+        newsListRecyclerView.setAdapter(headerAndFooterWrapper);
         newsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        newsListRecyclerView.setHasFixedSize(true);
-//        newsListRecyclerView.setNestedScrollingEnabled(false);
-//        newsListRecyclerView.setFocusable(false);
+
         //获取最近三天
         addNewsToRecyclerView(currentDate.getTime());
         currentDate.add(Calendar.DAY_OF_MONTH,-1);
@@ -173,15 +178,6 @@ public class MainActivity extends AppCompatActivity{
         currentDate.add(Calendar.DAY_OF_MONTH,-1);
         addNewsToRecyclerView(currentDate.getTime());
 
-        sv_homeNews.setOnScrollBottomListener(new MyScrollView.OnScrollBottomListener() {
-            @Override
-            public void scrollToBottom() {
-                // 加载更多
-                currentDate.add(Calendar.DAY_OF_MONTH,-1);
-                Log.v("日期",currentDate.getTime().toString());
-                addNewsToRecyclerView(currentDate.getTime());
-            }
-        });
         newsListRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(){
             @Override
             public void onScrollToBottom() {
@@ -231,6 +227,7 @@ public class MainActivity extends AppCompatActivity{
                         NewsBean news = new NewsBean(latestNews.getStories().get(i).getTitle(),
                                 latestNews.getStories().get(i).getImages().get(0));
                         newsAdapter.addNews(news);
+                        headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
                     }
                 });
     }

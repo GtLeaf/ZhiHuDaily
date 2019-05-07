@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.cmd.hit.zhihudaily.R;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,13 +72,13 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
     public void addBitmaps(List<Bitmap> list){
         for (int i = 0; i < list.size(); i++){
             Bitmap bitmap = list.get(i);
-            addBitmapToImageBarnnerViewGroup(bitmap);
+            addBitmapToImageBannerViewGroup(bitmap);
             addTextShow("第一条文本");
             addDotToLinearlayout();
         }
     }
     public void addBitmap(Bitmap bitmap,String text){
-        addBitmapToImageBarnnerViewGroup(bitmap);
+        addBitmapToImageBannerViewGroup(bitmap);
         arrayText.add(text);
         addDotToLinearlayout();
     }
@@ -109,7 +108,7 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
 
     }
 
-    private void addBitmapToImageBarnnerViewGroup(Bitmap bitmap){
+    private void addBitmapToImageBannerViewGroup(Bitmap bitmap){
         ImageView iv = new ImageView(getContext());
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
         iv.setLayoutParams(new ViewGroup.LayoutParams(WIDTH,ViewGroup.LayoutParams.WRAP_CONTENT));
