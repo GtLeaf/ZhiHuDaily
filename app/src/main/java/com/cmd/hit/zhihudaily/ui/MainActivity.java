@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case TOP_COVER_IMAGE:
                     Bitmap topBitmap = (Bitmap) msg.obj;
-                    activity.mGroup.addBitmap(topBitmap);
+                    activity.mGroup.addBitmap(topBitmap,"");//添加文本
+
                     break;
                 case COVER_IMAGE:
                     Bitmap bitmap = (Bitmap) msg.obj;

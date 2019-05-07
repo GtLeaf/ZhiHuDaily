@@ -186,6 +186,7 @@ public class ImageBarnnerViewGroup extends ViewGroup {
                     scroller.startScroll(scrollX, 0, dx, 0);
                     postInvalidate();//重绘
                     barnnerViewGroupListener.selectImage(index);
+                    barnnerViewGroupListener.selectText(index);
                 }
                 startAuto();
                 break;
@@ -212,6 +213,7 @@ public class ImageBarnnerViewGroup extends ViewGroup {
 
     public interface ImageBarnnerViewGroupListener{
         void selectImage(int index);
+        void selectText(int index);
     }
 
 }

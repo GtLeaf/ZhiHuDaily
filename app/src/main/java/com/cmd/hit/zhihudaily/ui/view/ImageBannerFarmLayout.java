@@ -2,6 +2,7 @@ package com.cmd.hit.zhihudaily.ui.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -11,21 +12,29 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.cmd.hit.zhihudaily.R;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerViewGroup.ImageBarnnerViewGroupListener,ImageBarnnerViewGroup.ImageBarnnerListener {
 
     private ImageBarnnerViewGroup imageBarnnerViewGroup;
+    private LinearLayout textLinearLayout;
     private LinearLayout linearLayout;
+    private TextView tv;
 
     //上次点击的位置
     float lastX = 0f;
     float lastY = 0f;
 
     public static int WIDTH = 0;
+
+
+    private List<String> arrayText = new ArrayList<String>();
 
     private FarmLayoutListener listener;
 
@@ -40,18 +49,24 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
     public ImageBannerFarmLayout(@NonNull Context context) {
         super(context);
         initImageBarnnerViewGroup();
+        initTextLinearLayout();
+        addTextShow("");
         initDotLinearlayout();
     }
 
     public ImageBannerFarmLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initImageBarnnerViewGroup();
+        initTextLinearLayout();
+        addTextShow("");
         initDotLinearlayout();
     }
 
     public ImageBannerFarmLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initImageBarnnerViewGroup();
+        initTextLinearLayout();
+        addTextShow("");
         initDotLinearlayout();
     }
 
@@ -59,12 +74,29 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
         for (int i = 0; i < list.size(); i++){
             Bitmap bitmap = list.get(i);
             addBitmapToImageBarnnerViewGroup(bitmap);
+            addTextShow("第一条文本");
             addDotToLinearlayout();
         }
     }
-    public void addBitmap(Bitmap bitmap){
+    public void addBitmap(Bitmap bitmap,String text){
         addBitmapToImageBarnnerViewGroup(bitmap);
+        arrayText.add(text);
         addDotToLinearlayout();
+    }
+
+
+
+    //添加显示文本
+    private void addTextShow(String str){
+        tv = new TextView(getContext());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(15,5,5,5);
+        tv.setLayoutParams(lp);
+        tv.setText(str);
+        tv.setTextSize(36);
+        tv.setTextColor(Color.WHITE);
+        tv.setMaxLines(2);
+        textLinearLayout.addView(tv);
     }
 
     private void addDotToLinearlayout(){
@@ -96,6 +128,22 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
         addView(imageBarnnerViewGroup);
     }
 
+    //初始化文本
+    private  void initTextLinearLayout(){
+        textLinearLayout = new LinearLayout(getContext());
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                240);
+        textLinearLayout.setLayoutParams(lp);
+        textLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        textLinearLayout.setGravity(Gravity.LEFT);
+        addView(textLinearLayout);
+
+        //重新设置布局
+        FrameLayout.LayoutParams layoutParams = (LayoutParams)textLinearLayout.getLayoutParams();
+        layoutParams.gravity = Gravity.BOTTOM;
+        textLinearLayout.setLayoutParams(layoutParams);
+    }
+
     //初始化底部原点
     private void initDotLinearlayout(){
         linearLayout = new LinearLayout(getContext());
@@ -114,6 +162,12 @@ public class ImageBannerFarmLayout extends FrameLayout implements ImageBarnnerVi
 
         //设置透明度
         linearLayout.setAlpha(0.5f);
+    }
+
+    //选择文本
+    @Override
+    public void selectText(int index){
+        tv.setText(arrayText.get(index));
     }
 
     @Override
