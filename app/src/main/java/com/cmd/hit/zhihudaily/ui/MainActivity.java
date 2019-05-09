@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity{
 
     private void addNewsToRecyclerView(Date date){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(date);
-        model.getLatestNewsObservable(key)
+        model.getLatestNewsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(latestNews -> {
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity{
     private void doBusiness(){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         //请求新闻摘要
-        model.getLatestNewsObservable(key)
+        model.getLatestNewsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(latestNews -> {
