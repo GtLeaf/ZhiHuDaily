@@ -21,6 +21,7 @@ import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
 import com.cmd.hit.zhihudaily.viewModel.MainViewModel;
+import com.cmd.hit.zhihudaily.viewModel.NewsContentViewModel;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity{
         //设置轮播图点击事件
         mGroup.setListener(pos -> {
             Toast.makeText(this,"pos=" + pos, Toast.LENGTH_SHORT).show();
+            NewsContentActivity.actionStart(latestNews.getTop_stories().get(pos).getId(), this);
         });
         //离线缓存点击事件
         tv_offlineDownload.setOnClickListener(v -> {

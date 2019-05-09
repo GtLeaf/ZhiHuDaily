@@ -12,7 +12,6 @@ import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
  */
 
 public class SPUtil {
-    private static final String FILE_NAME = "ZhiHuDaily_SP";
     private static Context context;
 
     /*

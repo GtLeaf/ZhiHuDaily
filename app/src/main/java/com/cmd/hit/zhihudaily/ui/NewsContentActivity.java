@@ -9,6 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 
 import com.cmd.hit.zhihudaily.R;
+import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
+import com.cmd.hit.zhihudaily.model.remote.ServiceCreator;
+import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
+import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
+import com.cmd.hit.zhihudaily.viewModel.NewsContentViewModel;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by PC-0775 on 2019/5/6.
@@ -17,6 +25,8 @@ import com.cmd.hit.zhihudaily.R;
 public class NewsContentActivity extends AppCompatActivity{
 
     private WebView wv_newsContent;
+    private NewsContentViewModel model;
+
 
     private int newsId;
 
@@ -35,6 +45,8 @@ public class NewsContentActivity extends AppCompatActivity{
 
     private void init(){
         wv_newsContent = findViewById(R.id.wv_news_content);
+        model = new NewsContentViewModel(new NewsRepository(new NewsDao()
+                , ServiceCreator.getInstance().create(NewsService.class)));
     }
 
     private void setWebView(){
@@ -46,9 +58,14 @@ public class NewsContentActivity extends AppCompatActivity{
     }
 
     private void doBusiness(){
-
-
         setWebView();
+        model.getNewsObservable(newsId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(news -> {
+                    wv_newsContent.loadDataWithBaseURL(null, news.getBody(), "text/html"
+                            , "utf-8", null);
+                });
 
     }
 
@@ -57,6 +74,7 @@ public class NewsContentActivity extends AppCompatActivity{
         intent.putExtra("newsId", newsId);
         context.startActivity(intent);
     }
+
 
     @Override
     protected void onDestroy() {
