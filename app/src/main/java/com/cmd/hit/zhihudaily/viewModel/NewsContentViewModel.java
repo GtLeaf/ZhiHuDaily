@@ -18,7 +18,7 @@ public class NewsContentViewModel {
     }
 
     public Observable<News> getNewsObservable(int newsId){
-        return newsId == 0 ? null : repository.getNewsItem(newsId);
+        return repository.getNewsItem(newsId);
     }
 
 }
