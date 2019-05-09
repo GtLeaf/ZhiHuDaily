@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
+import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -104,6 +106,43 @@ public class NewsRepositoryTest {
                     @Override
                     public void onNext(LatestNews latestNews) {
                         Log.d(TAG, latestNews.getDate());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        Log.d(TAG, "finish");
+    }
+
+    /**
+     * 获取过往消息
+     */
+    @Test
+    public void getBeforeNewsTest(){
+        SPUtil.setContext(context);
+        NewsRepository newsRepository = new NewsRepository(new NewsDao(), ServiceCreator.getInstance().create(NewsService.class));
+        Calendar currentDate = Calendar.getInstance();
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(currentDate.getTime());
+        newsRepository.getBeforeNews(key)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BeforeNews>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(BeforeNews beforeNews) {
+                        Log.d(TAG, beforeNews.getDate());
                     }
 
                     @Override

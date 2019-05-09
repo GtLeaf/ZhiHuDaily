@@ -1,12 +1,25 @@
 package com.cmd.hit.zhihudaily.ui;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,13 +32,19 @@ import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
+import com.cmd.hit.zhihudaily.ui.adapter.HeaderAndFooterWrapper;
+import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
+import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
+import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
+import com.cmd.hit.zhihudaily.ui.view.MyScrollView;
 import com.cmd.hit.zhihudaily.viewModel.MainViewModel;
 import com.cmd.hit.zhihudaily.viewModel.NewsContentViewModel;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +63,7 @@ public class MainActivity extends AppCompatActivity{
     //view
     private ImageBannerFarmLayout mGroup;
     private TextView tv_offlineDownload;
+    private NavigationView nav_headerView;
 
     //resourcess
     private List<Bitmap> topBitmapList = new ArrayList<>();
@@ -60,6 +80,11 @@ public class MainActivity extends AppCompatActivity{
     public static final int TOP_NEWS = 2;
     public static final int TOP_COVER_IMAGE = 3;
     public static final int COVER_IMAGE = 4;
+
+    private RecyclerView newsListRecyclerView;
+    private NewsAdapter newsAdapter;
+    private Calendar currentDate = Calendar.getInstance();
+    private HeaderAndFooterWrapper headerAndFooterWrapper;
 
     //Handler
     MyHandler handler = new MyHandler(this);
@@ -81,7 +106,8 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case TOP_COVER_IMAGE:
                     Bitmap topBitmap = (Bitmap) msg.obj;
-                    activity.mGroup.addBitmap(topBitmap);
+                    activity.mGroup.addBitmap(topBitmap,"");//添加文本
+
                     break;
                 case COVER_IMAGE:
                     Bitmap bitmap = (Bitmap) msg.obj;
@@ -104,14 +130,23 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void init(){
+        //toolbar
+        Toolbar toolbar = findViewById(R.id.home_toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getActionBar();
+        if (null != actionBar){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         //设置图片完全填充
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         ImageBannerFarmLayout.WIDTH = dm.widthPixels;
 
-        //轮播图
-        mGroup = findViewById(R.id.image_group);
-        tv_offlineDownload = findViewById(R.id.tv_offline_download);
+        //侧滑栏头部
+        nav_headerView = findViewById(R.id.nav_header_view);
+        //离线下载按钮
+        tv_offlineDownload = nav_headerView.getHeaderView(0).findViewById(R.id.tv_offline_download);
 
         //SPUtil
         SPUtil.setContext(this);
@@ -122,6 +157,37 @@ public class MainActivity extends AppCompatActivity{
         NewsRepository repository = new NewsRepository(dao, service);
         PhotoCacheHelper helper = new PhotoCacheHelper(this, handler);
         model = new MainViewModel(repository, helper);
+
+        //初始化recyclerView
+        newsListRecyclerView = findViewById(R.id.rv_home_list);
+
+        newsAdapter = new NewsAdapter();
+
+        headerAndFooterWrapper = new HeaderAndFooterWrapper(newsAdapter);
+
+        mGroup = new ImageBannerFarmLayout(this);
+
+        headerAndFooterWrapper.addHeaderView(mGroup);
+
+        newsListRecyclerView.setAdapter(headerAndFooterWrapper);
+        newsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //获取最近三天
+        addNewsToRecyclerView(currentDate.getTime());
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        addNewsToRecyclerView(currentDate.getTime());
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        addNewsToRecyclerView(currentDate.getTime());
+
+        newsListRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(){
+            @Override
+            public void onScrollToBottom() {
+                // 加载更多
+                currentDate.add(Calendar.DAY_OF_MONTH,-1);
+                Log.v("日期",currentDate.getTime().toString());
+                addNewsToRecyclerView(currentDate.getTime());
+            }
+        });
     }
 
     //设置事件监听
@@ -153,6 +219,22 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    private void addNewsToRecyclerView(Date date){
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(date);
+        model.getLatestNewsObservable(key)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(latestNews -> {
+                    for(int i=0;i<latestNews.getStories().size();i++){
+                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getTitle(),
+                                latestNews.getStories().get(i).getImages().get(0));
+                        newsAdapter.addNews(news);
+                        headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
+                    }
+                });
+    }
+
+    @SuppressLint("CheckResult")
     private void doBusiness(){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         //请求新闻摘要
@@ -169,6 +251,7 @@ public class MainActivity extends AppCompatActivity{
                         //获取图片
                         model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
                     }
+
                 });
 
     }
@@ -178,6 +261,7 @@ public class MainActivity extends AppCompatActivity{
      * @param newsIdList    news的ID
      * @param newsList      news
      */
+    @SuppressLint("CheckResult")
     public void requestNews(List<Integer> newsIdList, List<News> newsList){
         Observable.create((ObservableOnSubscribe<Integer>) emitter -> {
             for (int id : newsIdList){
@@ -189,5 +273,10 @@ public class MainActivity extends AppCompatActivity{
         .subscribe(newsList::add);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
 
 }

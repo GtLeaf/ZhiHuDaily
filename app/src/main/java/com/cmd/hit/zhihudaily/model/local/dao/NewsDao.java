@@ -59,18 +59,4 @@ public class NewsDao {
         SPUtil.put(key, objInfo);
     }
 
-    /*
-    * 缓存图片
-    * */
-    public void cacheNewsPic(){
-
-    }
-
-    /*
-    * 获取图片
-    * */
-    public Observable<Response<String>> getNewsPic(String url){
-        return null;
-    }
-
 }
