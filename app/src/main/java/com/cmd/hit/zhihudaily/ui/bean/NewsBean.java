@@ -1,6 +1,7 @@
 package com.cmd.hit.zhihudaily.ui.bean;
 
 public class NewsBean {
+    private Integer id;
     private String title;
     private String image;
 
@@ -8,6 +9,12 @@ public class NewsBean {
     }
 
     public NewsBean(String title, String image) {
+        this.title = title;
+        this.image = image;
+    }
+
+    public NewsBean(Integer id, String title, String image) {
+        this.id = id;
         this.title = title;
         this.image = image;
     }
@@ -26,5 +33,13 @@ public class NewsBean {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

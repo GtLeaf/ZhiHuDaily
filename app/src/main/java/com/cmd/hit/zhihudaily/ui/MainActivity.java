@@ -219,12 +219,13 @@ public class MainActivity extends AppCompatActivity{
 
     private void addNewsToRecyclerView(Date date){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(date);
-        model.getLatestNewsObservable()
+        model.getBeforeNewsObservable(key)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(latestNews -> {
                     for(int i=0;i<latestNews.getStories().size();i++){
-                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getTitle(),
+                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getId(),
+                                latestNews.getStories().get(i).getTitle(),
                                 latestNews.getStories().get(i).getImages().get(0));
                         newsAdapter.addNews(news);
                         headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
