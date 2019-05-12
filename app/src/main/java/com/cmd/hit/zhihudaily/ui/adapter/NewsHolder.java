@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmd.hit.zhihudaily.R;
+import com.cmd.hit.zhihudaily.ui.MainActivity;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 
 public class NewsHolder extends RecyclerView.ViewHolder {
@@ -23,5 +25,11 @@ public class NewsHolder extends RecyclerView.ViewHolder {
     public void bindHolder(NewsBean newsBean){
         textView.setText(newsBean.getTitle());
         Glide.with(itemView.getContext()).load(newsBean.getImage()).into(imageView);
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.getInstance(), ""+newsBean.getId(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

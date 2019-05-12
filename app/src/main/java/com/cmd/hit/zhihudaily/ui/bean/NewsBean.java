@@ -1,22 +1,25 @@
 package com.cmd.hit.zhihudaily.ui.bean;
 
-public class NewsBean {
+public class NewsBean extends TypeBean{
     private Integer id;
     private String title;
     private String image;
 
     public NewsBean() {
+        setType(TypeBean.NEWS);
     }
 
     public NewsBean(String title, String image) {
         this.title = title;
         this.image = image;
+        setType(TypeBean.NEWS);
     }
 
     public NewsBean(Integer id, String title, String image) {
         this.id = id;
         this.title = title;
         this.image = image;
+        setType(TypeBean.NEWS);
     }
 
     public String getTitle() {

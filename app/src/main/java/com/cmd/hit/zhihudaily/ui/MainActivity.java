@@ -34,6 +34,7 @@ import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 import com.cmd.hit.zhihudaily.ui.adapter.HeaderAndFooterWrapper;
 import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
+import com.cmd.hit.zhihudaily.ui.bean.DateBean;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
@@ -58,6 +59,11 @@ import io.reactivex.schedulers.Schedulers;
  */
 //链接MUMU模拟器的命令行，命令：adb connect 127.0.0.1:7555
 public class MainActivity extends AppCompatActivity{
+
+    private static MainActivity instance;
+    public static MainActivity getInstance(){
+        return instance;
+    }
 
     //view
     private ImageBannerFarmLayout mGroup;
@@ -123,6 +129,8 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        instance = this;
+
         init();
         setListener();
         doBusiness();
@@ -171,20 +179,11 @@ public class MainActivity extends AppCompatActivity{
         newsListRecyclerView.setAdapter(headerAndFooterWrapper);
         newsListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        //获取最近三天
-        addNewsToRecyclerView(currentDate.getTime());
-        currentDate.add(Calendar.DAY_OF_MONTH,-1);
-        addNewsToRecyclerView(currentDate.getTime());
-        currentDate.add(Calendar.DAY_OF_MONTH,-1);
-        addNewsToRecyclerView(currentDate.getTime());
-
         newsListRecyclerView.addOnScrollListener(new RecyclerViewScrollListener(){
             @Override
             public void onScrollToBottom() {
                 // 加载更多
-                currentDate.add(Calendar.DAY_OF_MONTH,-1);
-                Log.v("日期",currentDate.getTime().toString());
-                addNewsToRecyclerView(currentDate.getTime());
+                addNewsToRecyclerView();
             }
         });
     }
@@ -217,8 +216,12 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    private void addNewsToRecyclerView(Date date){
-        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(date);
+    private void addNewsToRecyclerView(){
+        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(currentDate.getTime());
+        DateBean dateBean = new DateBean(new SimpleDateFormat("yyyy/MM/dd").format(currentDate.getTime()),
+                new SimpleDateFormat("EEEE").format(currentDate.getTime()));
+        newsAdapter.addNews(dateBean);
         model.getBeforeNewsObservable(key)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -237,6 +240,8 @@ public class MainActivity extends AppCompatActivity{
     private void doBusiness(){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         //请求新闻摘要
+        DateBean dateBean = new DateBean("今日热闻","");
+        newsAdapter.addNews(dateBean);
         model.getLatestNewsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -249,6 +254,13 @@ public class MainActivity extends AppCompatActivity{
                     for (LatestNews.StoriesBean bean : latestNews.getStories()){
                         //获取图片
                         model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
+                    }
+                    for(int i=0;i<latestNews.getStories().size();i++){
+                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getId(),
+                                latestNews.getStories().get(i).getTitle(),
+                                latestNews.getStories().get(i).getImages().get(0));
+                        newsAdapter.addNews(news);
+                        headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
                     }
 
                 });
