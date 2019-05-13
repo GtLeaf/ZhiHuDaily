@@ -42,10 +42,10 @@ public class MainViewModel {
         photoCacheHelper.loadBitmap(url, what);
     }
 
-    public Observable<LatestNews> getLatestNewsObservable(String key){
+    public Observable<LatestNews> getLatestNewsObservable(){
         return repository.getLatestNews();
     }
-    public Observable<BeforeNews> getBeforeNewsObservable2(String key){
+    public Observable<BeforeNews> getBeforeNewsObservable(String key){
         return repository.getBeforeNews(key);
     }
     public Observable<News> getNewsObservable(int newsId){
