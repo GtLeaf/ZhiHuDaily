@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.CollapsibleActionView;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cmd.hit.zhihudaily.R;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
@@ -32,6 +36,8 @@ public class NewsContentActivity extends AppCompatActivity{
     private WebView wv_newsContent;
     private ImageView iv_newsContentTitle;
     private Toolbar tb_newsContent;
+    private CollapsingToolbarLayout ctl_newsContent;
+    private TextView tv_newsContentTitle;
 
     private NewsContentViewModel model;
 
@@ -55,15 +61,19 @@ public class NewsContentActivity extends AppCompatActivity{
         wv_newsContent = findViewById(R.id.wv_news_content);
         iv_newsContentTitle = findViewById(R.id.iv_news_content_title);
         tb_newsContent = findViewById(R.id.tb_news_content);
+        ctl_newsContent = findViewById(R.id.ctl_news_content);
+        tv_newsContentTitle = findViewById(R.id.tv_news_content_title);
         initToolBar();
-
 
         model = new NewsContentViewModel(new NewsRepository(new NewsDao()
                 , ServiceCreator.getInstance().create(NewsService.class)));
+        setWebView();
     }
 
     private void setWebView(){
-
+        wv_newsContent.getSettings().setJavaScriptEnabled(true);
+        wv_newsContent.getSettings().setDefaultFontSize(16);
+        wv_newsContent.setWebViewClient(new WebViewClient());
     }
 
     private void setListener(){
@@ -71,14 +81,14 @@ public class NewsContentActivity extends AppCompatActivity{
     }
 
     private void doBusiness(){
-        setWebView();
         model.getNewsObservable(newsId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(news -> {
                     wv_newsContent.loadDataWithBaseURL(null, changeRowPitch(news.getBody(), 20), "text/html"
                             , "utf-8", null);
-                    PhotoCacheHelper.getInstance().loadBitmap(news.getImages().get(0), iv_newsContentTitle);
+                    tv_newsContentTitle.setText(news.getTitle());
+                    PhotoCacheHelper.getInstance().loadBitmap(news.getImage(), iv_newsContentTitle);
                 });
 
     }
@@ -106,6 +116,8 @@ public class NewsContentActivity extends AppCompatActivity{
 
     private String changeRowPitch(String htmlData, int rowPitch)
     {
+        htmlData = htmlData.replace("<img", "<img style ='max-width:90%;height:auto'");
+
         htmlData = "<html> \n" +
                 "<head> \n" +
                 "<style type=\"text/css\"> \n" +
@@ -136,6 +148,7 @@ public class NewsContentActivity extends AppCompatActivity{
         if(actionBar != null)
         {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("");
         }
     }
 }

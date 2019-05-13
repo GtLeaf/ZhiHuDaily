@@ -29,6 +29,17 @@
                 android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"/>
 
+            <TextView
+                android:id="@+id/tv_news_content_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:background="#d1dadada"/>
+
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/tb_news_content"
