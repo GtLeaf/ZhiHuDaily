@@ -12,14 +12,13 @@ import com.cmd.hit.zhihudaily.ui.ZhiHuApplication;
  */
 
 public class SPUtil {
-    private static final String FILE_NAME = "ZhiHuDaily_SP";
     private static Context context;
 
     /*
     * 保存数据
     * */
     public static void put(String key, Object value){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context != null ? context : ZhiHuApplication.reference.get());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         Editor editor = preferences.edit();
         if (value instanceof String){
             editor.putString(key, (String) value);
@@ -46,7 +45,7 @@ public class SPUtil {
     * 获取数据
     * */
     public static <T> T get(String key, T defaultValue){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context != null ? context : ZhiHuApplication.reference.get());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         Object obj = null;
         if (defaultValue instanceof String){
             obj = preferences.getString(key, (String)defaultValue);
