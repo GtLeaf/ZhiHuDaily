@@ -7,11 +7,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.LruCache;
 import android.widget.ImageView;
 
-import com.cmd.hit.zhihudaily.ui.MainActivity;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.BufferedInputStream;
@@ -21,6 +21,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
@@ -37,8 +38,6 @@ import okhttp3.Response;
  */
 
 public class PhotoCacheHelper {
-    //照片路径
-    private String[] urls;
     //内存缓存
     private LruCache<String, Bitmap> mMemoryCache;
     //硬盘缓存
@@ -50,16 +49,28 @@ public class PhotoCacheHelper {
     //主线程Handler 用来图片下载完成后更新ImageView
     private Handler mHandler;
 
-    private Context context;
+    private static PhotoCacheHelper photoCacheHelper;
+
+    public static PhotoCacheHelper getInstance(){
+        return photoCacheHelper;
+    }
+
+    public static void init(Context context){
+        SoftReference<Context> softReference = new SoftReference<>(context);
+        photoCacheHelper = new PhotoCacheHelper(softReference.get());
+    }
+
+    public PhotoCacheHelper(Context context){
+        this(context, new Handler(Looper.getMainLooper()));
+    }
 
     public PhotoCacheHelper(Context context, Handler mHandler){
-        this.context = context;
         this.mHandler = mHandler;
-        init();
+        config(context);
     }
 
     //初始化
-    private void init(){
+    private void config(Context context){
         okHttpClient = new OkHttpClient.Builder().build();
 
         //构建一定数量的线程池
@@ -76,12 +87,12 @@ public class PhotoCacheHelper {
         };
 
         // 构建硬盘缓存实例
-        File file = getDiskCacheDir("photo");
+        File file = getDiskCacheDir("photo", context);
         if (!file.exists()){
             file.mkdirs();
         }
         try {
-            mDiskCache = DiskLruCache.open(file, getAppInfoVersion(), 1, 10*1024*1024);
+            mDiskCache = DiskLruCache.open(file, getAppInfoVersion(context), 1, 10*1024*1024);
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -92,7 +103,7 @@ public class PhotoCacheHelper {
      * @param uniqueName
      * @return
      */
-    private File getDiskCacheDir(String uniqueName){
+    private File getDiskCacheDir(String uniqueName, Context context){
         String cachePath;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || !Environment.isExternalStorageRemovable()){
@@ -107,7 +118,7 @@ public class PhotoCacheHelper {
      * 获取app版本信息
      * @return
      */
-    private int getAppInfoVersion(){
+    private int getAppInfoVersion(Context context){
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return info.versionCode;
@@ -137,6 +148,8 @@ public class PhotoCacheHelper {
         }
     }
 
+
+    //应该改名为getBitmap!!!
     public void loadBitmap(String url, int what){
         //从缓存中获取Bitmap
         Bitmap bitmap = mMemoryCache.get(url);
@@ -296,8 +309,8 @@ public class PhotoCacheHelper {
         @Override
         public void run() {
             FileDescriptor fileDescriptor = null;
-            FileInputStream fileInputStream = null;
-            DiskLruCache.Snapshot snapshot = null;
+            FileInputStream fileInputStream;
+            DiskLruCache.Snapshot snapshot;
             String key = hashKeyForDisk(url);
             //查找key对应的硬盘缓存
 
@@ -326,6 +339,7 @@ public class PhotoCacheHelper {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            //返回bitmap
             if (bitmap != null){
                 //将图片添加到内存缓存中
                 addBitmapToMemoryCache(bitmap, url);
@@ -350,6 +364,4 @@ public class PhotoCacheHelper {
         message.obj = bitmap;
         mHandler.sendMessage(message);
     }
-
-
 }

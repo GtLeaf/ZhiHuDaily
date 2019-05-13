@@ -11,6 +11,7 @@ import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
 import com.cmd.hit.zhihudaily.model.remote.ServiceCreator;
 import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
+import com.cmd.hit.zhihudaily.other.LogUtil;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 
 import org.junit.Before;
@@ -70,7 +71,7 @@ public class NewsRepositoryTest {
                     @Override
                     public void onComplete() {}
                 });
-        Log.d(TAG, "finish");
+        LogUtil.d(TAG, "finish");
     }
 
     /*
@@ -80,12 +81,12 @@ public class NewsRepositoryTest {
     public void getLocalNewsTest(){
         SPUtil.setContext(context);
         String newsInfo = SPUtil.get("9454158", "");
-        Log.d(TAG, newsInfo);
+        LogUtil.d(TAG, newsInfo);
     }
     @Test
     public void dateTest(){
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
-        Log.d(TAG, key);
+        LogUtil.d(TAG, key);
     }
     /*
     * 获取最新消息测试
@@ -118,7 +119,7 @@ public class NewsRepositoryTest {
 
                     }
                 });
-        Log.d(TAG, "finish");
+        LogUtil.d(TAG, "finish");
     }
 
     /**
@@ -155,7 +156,7 @@ public class NewsRepositoryTest {
 
                     }
                 });
-        Log.d(TAG, "finish");
+        LogUtil.d(TAG, "finish");
     }
 
     /*
@@ -166,6 +167,6 @@ public class NewsRepositoryTest {
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(new Date());
         SPUtil.setContext(context);
         String LatestNewsInfo = SPUtil.get(key, "");
-        Log.d(TAG, LatestNewsInfo);
+        LogUtil.d(TAG, LatestNewsInfo);
     }
 }
