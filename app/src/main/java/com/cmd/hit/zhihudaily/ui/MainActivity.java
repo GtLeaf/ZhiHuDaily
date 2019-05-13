@@ -2,6 +2,7 @@ package com.cmd.hit.zhihudaily.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmd.hit.zhihudaily.R;
+import com.cmd.hit.zhihudaily.Setting.SettingActivity;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
@@ -299,7 +301,8 @@ public class MainActivity extends AppCompatActivity{
         switch(item.getItemId())
         {
             case R.id.home_setting:
-                Toast.makeText(this, "setting", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this,SettingActivity.class);
+                startActivity(intent);
                 break;
 
             default:
