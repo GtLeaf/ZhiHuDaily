@@ -1,4 +1,4 @@
-package com.cmd.hit.zhihudaily.Setting;
+package com.cmd.hit.zhihudaily.ui.Setting;
 import com.cmd.hit.zhihudaily.R;
 import android.content.Context;
 import android.graphics.Color;

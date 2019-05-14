@@ -130,7 +130,7 @@ public class NewsRepositoryTest {
         SPUtil.setContext(context);
         NewsRepository newsRepository = new NewsRepository(new NewsDao(), ServiceCreator.getInstance().create(NewsService.class));
         Calendar currentDate = Calendar.getInstance();
-        currentDate.add(Calendar.DAY_OF_MONTH,-1);
+        currentDate.add(Calendar.DAY_OF_MONTH,-2);
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(currentDate.getTime());
         newsRepository.getBeforeNews(key)
                 .subscribeOn(Schedulers.io())
@@ -144,6 +144,7 @@ public class NewsRepositoryTest {
                     @Override
                     public void onNext(BeforeNews beforeNews) {
                         Log.d(TAG, beforeNews.getDate());
+                        Log.d(TAG, beforeNews.getStories().get(0).getTitle());
                     }
 
                     @Override

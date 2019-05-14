@@ -1,11 +1,10 @@
-package com.cmd.hit.zhihudaily.Setting;
+package com.cmd.hit.zhihudaily.ui.Setting;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cmd.hit.zhihudaily.R;

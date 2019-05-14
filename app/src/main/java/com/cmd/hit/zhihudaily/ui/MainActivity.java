@@ -9,25 +9,18 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmd.hit.zhihudaily.R;
-import com.cmd.hit.zhihudaily.Setting.SettingActivity;
+import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
@@ -36,15 +29,14 @@ import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
+import com.cmd.hit.zhihudaily.ui.Setting.SettingActivity;
 import com.cmd.hit.zhihudaily.ui.adapter.HeaderAndFooterWrapper;
 import com.cmd.hit.zhihudaily.ui.adapter.NewsAdapter;
 import com.cmd.hit.zhihudaily.ui.bean.DateBean;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 import com.cmd.hit.zhihudaily.ui.listener.RecyclerViewScrollListener;
 import com.cmd.hit.zhihudaily.ui.view.ImageBannerFarmLayout;
-import com.cmd.hit.zhihudaily.ui.view.MyScrollView;
 import com.cmd.hit.zhihudaily.viewModel.MainViewModel;
-import com.cmd.hit.zhihudaily.viewModel.NewsContentViewModel;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -56,7 +48,9 @@ import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -227,17 +221,36 @@ public class MainActivity extends AppCompatActivity{
         String key = new SimpleDateFormat("yyyyMMdd", Locale.CHINA).format(currentDate.getTime());
         DateBean dateBean = new DateBean(new SimpleDateFormat("yyyy/MM/dd").format(currentDate.getTime()),
                 new SimpleDateFormat("EEEE").format(currentDate.getTime()));
-        newsAdapter.addNews(dateBean);
+
         model.getBeforeNewsObservable(key)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(latestNews -> {
-                    for(int i=0;i<latestNews.getStories().size();i++){
-                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getId(),
-                                latestNews.getStories().get(i).getTitle(),
-                                latestNews.getStories().get(i).getImages().get(0));
-                        newsAdapter.addNews(news);
-                        headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
+                .subscribe(new Observer<BeforeNews>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(BeforeNews beforeNews) {
+                        newsAdapter.addNews(dateBean);
+                        for(int i=0;i<beforeNews.getStories().size();i++) {
+                            NewsBean news = new NewsBean(beforeNews.getStories().get(i).getId(),
+                                    beforeNews.getStories().get(i).getTitle(),
+                                    beforeNews.getStories().get(i).getImages().get(0));
+                            newsAdapter.addNews(news);
+                            headerAndFooterWrapper.notifyItemChanged(newsList.size() - 1);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
     }
@@ -287,7 +300,27 @@ public class MainActivity extends AppCompatActivity{
         }).subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .flatMap(integer -> model.getNewsObservable(integer))
-        .subscribe(newsList::add);
+        .subscribe(new Observer<News>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(News news) {
+                newsList.add(news);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     @Override

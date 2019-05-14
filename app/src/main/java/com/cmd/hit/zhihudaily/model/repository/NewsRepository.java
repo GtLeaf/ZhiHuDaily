@@ -42,7 +42,7 @@ public class NewsRepository {
         //组装key
         return dao.getCache(cacheKeyPrefix+key, BeforeNews.class)
                 .onErrorResumeNext(network.getBeforeNews(key)
-                        .doOnNext(beforeNews -> dao.cacheData(cacheKeyPrefix+beforeNews.getDate(), beforeNews))
+                        .doOnNext(beforeNews -> dao.cacheData(cacheKeyPrefix+key, beforeNews))
                 );
     }
 

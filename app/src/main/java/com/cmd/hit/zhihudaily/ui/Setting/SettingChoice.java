@@ -1,4 +1,4 @@
-package com.cmd.hit.zhihudaily.Setting;
+package com.cmd.hit.zhihudaily.ui.Setting;
 
 import java.io.Serializable;
 

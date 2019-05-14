@@ -1,8 +1,11 @@
-package com.cmd.hit.zhihudaily.Setting;
+package com.cmd.hit.zhihudaily.ui.Setting;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -14,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SettingActivity extends AppCompatActivity {
+
+    private Toolbar setting_toolbar;
+
     private List<String> str2 = new ArrayList<String>();
     private List<String> str3 = new ArrayList<String>();;
     public List<SettingChoice> routine = new ArrayList<>();
@@ -21,6 +27,10 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting_main);
+
+        setting_toolbar = findViewById(R.id.setting_toolbar);
+        initToolBar();
+
         ListView lv=(ListView)findViewById(R.id.listview1);
         ListView lv2=(ListView)findViewById(R.id.listview2);
         ListView lv3=(ListView)findViewById(R.id.listview3);
@@ -74,5 +84,30 @@ public class SettingActivity extends AppCompatActivity {
                 Toast.makeText(SettingActivity.this,"功能待开发",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
+    * 设置toolbar
+    * */
+    private void initToolBar()
+    {
+        setSupportActionBar(setting_toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null)
+        {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("设置");
+        }
     }
 }

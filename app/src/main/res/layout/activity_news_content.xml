@@ -38,7 +38,7 @@
                 android:paddingRight="10sp"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:background="#d1dadada"/>
+                android:background="@drawable/gray_background"/>
 
 
             <android.support.v7.widget.Toolbar
@@ -60,7 +60,10 @@
         <WebView
             android:id="@+id/wv_news_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginBottom="32dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
 
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

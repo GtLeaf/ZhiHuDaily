@@ -8,7 +8,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.CollapsibleActionView;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -90,7 +89,6 @@ public class NewsContentActivity extends AppCompatActivity{
                     tv_newsContentTitle.setText(news.getTitle());
                     PhotoCacheHelper.getInstance().loadBitmap(news.getImage(), iv_newsContentTitle);
                 });
-
     }
 
     public static void actionStart(int newsId, Context context){

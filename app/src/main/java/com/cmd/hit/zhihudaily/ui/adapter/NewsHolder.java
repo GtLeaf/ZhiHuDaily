@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.cmd.hit.zhihudaily.R;
 import com.cmd.hit.zhihudaily.ui.MainActivity;
+import com.cmd.hit.zhihudaily.ui.NewsContentActivity;
 import com.cmd.hit.zhihudaily.ui.bean.NewsBean;
 
 public class NewsHolder extends RecyclerView.ViewHolder {
@@ -28,7 +29,8 @@ public class NewsHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.getInstance(), ""+newsBean.getId(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.getInstance(), ""+newsBean.getId(), Toast.LENGTH_SHORT).show();
+                NewsContentActivity.actionStart(newsBean.getId(), itemView.getContext());
             }
         });
     }
