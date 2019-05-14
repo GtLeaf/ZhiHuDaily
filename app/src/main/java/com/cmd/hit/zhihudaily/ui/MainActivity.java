@@ -1,7 +1,6 @@
 package com.cmd.hit.zhihudaily.ui;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -9,7 +8,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -68,6 +71,9 @@ public class MainActivity extends AppCompatActivity{
     private ImageBannerFarmLayout mGroup;
     private TextView tv_offlineDownload;
     private NavigationView nav_headerView;
+    private DrawerLayout drawer_layout;
+
+    ActionBarDrawerToggle mDrawerToggle;
 
     //resourcess
     private List<Bitmap> topBitmapList = new ArrayList<>();
@@ -137,10 +143,12 @@ public class MainActivity extends AppCompatActivity{
 
     private void init(){
         //toolbar
-        Toolbar toolbar = findViewById(R.id.home_toolbar);
+        Toolbar toolbar = findViewById(R.id.tl_custom);
         setSupportActionBar(toolbar);
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (null != actionBar){
+            actionBar.setTitle("首页");
+            actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -151,8 +159,15 @@ public class MainActivity extends AppCompatActivity{
 
         //侧滑栏头部
         nav_headerView = findViewById(R.id.nav_header_view);
+        //侧滑栏
+        drawer_layout = findViewById(R.id.drawer_layout);
         //离线下载按钮
         tv_offlineDownload = nav_headerView.getHeaderView(0).findViewById(R.id.tv_offline_download);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawer_layout, toolbar
+                ,R.string.abc_capital_on , R.string.abc_capital_off);
+
+        drawer_layout.addDrawerListener(mDrawerToggle);
 
         //SPUtil
         SPUtil.setContext(this);
@@ -342,5 +357,11 @@ public class MainActivity extends AppCompatActivity{
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        mDrawerToggle.syncState();
+        super.onPostCreate(savedInstanceState);
     }
 }
