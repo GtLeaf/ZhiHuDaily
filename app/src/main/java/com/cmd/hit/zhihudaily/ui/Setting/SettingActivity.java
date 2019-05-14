@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.cmd.hit.zhihudaily.R;
+import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,7 @@ public class SettingActivity extends AppCompatActivity {
                     Toast.makeText(SettingActivity.this,"功能待开发",Toast.LENGTH_SHORT).show();
                 }
                 if(str2.get(arg2).equals("清除缓存")){
-                    Log.i("clear cache","cache");
+                    PhotoCacheHelper.getInstance().clearDiskMemory();
                 }
 
             }
