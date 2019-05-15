@@ -12,7 +12,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity{
     private List<Bitmap> bitmapList = new ArrayList<>();
     private List<News> topNewsList = new ArrayList<>();
     private List<News> newsList = new ArrayList<>();
-    private LatestNews latestNews;
+    private LatestNews mLatestNews;
 
     //model
     private MainViewModel model;
@@ -207,7 +206,7 @@ public class MainActivity extends AppCompatActivity{
         //设置轮播图点击事件
         mGroup.setListener(pos -> {
             Toast.makeText(this,"pos=" + pos, Toast.LENGTH_SHORT).show();
-            NewsContentActivity.actionStart(latestNews.getTop_stories().get(pos).getId(), this);
+            NewsContentActivity.actionStart(mLatestNews.getTop_stories().get(pos).getId(), this);
         });
         //离线缓存点击事件
         tv_offlineDownload.setOnClickListener(v -> {
@@ -216,14 +215,14 @@ public class MainActivity extends AppCompatActivity{
             //普通新闻id
             List<Integer> newsId = new ArrayList<>();
 
-            for (LatestNews.TopStoriesBean bean : latestNews.getTop_stories()){
-                //获取图片
-                model.loadBitmap(bean.getImage(), TOP_COVER_IMAGE);
+            for (LatestNews.TopStoriesBean bean : mLatestNews.getTop_stories()){
+                //获取图片,缓存在本地即可
+                model.loadBitmap(bean.getImage(), 0);
                 topNewsId.add(bean.getId());
             }
-            for (LatestNews.StoriesBean bean : latestNews.getStories()){
-                //获取图片
-                model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
+            for (LatestNews.StoriesBean bean : mLatestNews.getStories()){
+                //获取图片,缓存在本地即可
+                model.loadBitmap(bean.getImages().get(0), 0);
                 newsId.add(bean.getId());
             }
             requestNews(topNewsId, topNewsList);
@@ -254,7 +253,7 @@ public class MainActivity extends AppCompatActivity{
                                     beforeNews.getStories().get(i).getTitle(),
                                     beforeNews.getStories().get(i).getImages().get(0));
                             newsAdapter.addNews(news);
-                            headerAndFooterWrapper.notifyItemChanged(newsList.size() - 1);
+                            headerAndFooterWrapper.notifyItemChanged(newsAdapter.getItemCount());
                         }
                     }
 
@@ -279,24 +278,41 @@ public class MainActivity extends AppCompatActivity{
         model.getLatestNewsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(latestNews -> {
-                    this.latestNews = latestNews;
-                    for (LatestNews.TopStoriesBean bean : latestNews.getTop_stories()){
-                        //获取轮播图片
-                        model.loadBitmap(bean.getImage(), TOP_COVER_IMAGE);
-                    }
-                    for (LatestNews.StoriesBean bean : latestNews.getStories()){
-                        //获取图片
-                        model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
-                    }
-                    for(int i=0;i<latestNews.getStories().size();i++){
-                        NewsBean news = new NewsBean(latestNews.getStories().get(i).getId(),
-                                latestNews.getStories().get(i).getTitle(),
-                                latestNews.getStories().get(i).getImages().get(0));
-                        newsAdapter.addNews(news);
-                        headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
+                .subscribe(new Observer<LatestNews>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
                     }
 
+                    @Override
+                    public void onNext(LatestNews latestNews) {
+                        mLatestNews = latestNews;
+                        for (LatestNews.TopStoriesBean bean : latestNews.getTop_stories()){
+                            //获取轮播图片
+                            model.loadBitmap(bean.getImage(), TOP_COVER_IMAGE);
+                        }
+                        for (LatestNews.StoriesBean bean : latestNews.getStories()){
+                            //获取图片
+                            model.loadBitmap(bean.getImages().get(0), COVER_IMAGE);
+                        }
+                        for(int i=0;i<latestNews.getStories().size();i++){
+                            NewsBean news = new NewsBean(latestNews.getStories().get(i).getId(),
+                                    latestNews.getStories().get(i).getTitle(),
+                                    latestNews.getStories().get(i).getImages().get(0));
+                            newsAdapter.addNews(news);
+                            headerAndFooterWrapper.notifyItemChanged(newsList.size()-1);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
 
     }
@@ -312,18 +328,19 @@ public class MainActivity extends AppCompatActivity{
             for (int id : newsIdList){
                 emitter.onNext(id);
             }
-        }).subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+            emitter.onComplete();
+        })
         .flatMap(integer -> model.getNewsObservable(integer))
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
         .subscribe(new Observer<News>() {
             @Override
             public void onSubscribe(Disposable d) {
-
+                Toast.makeText(MainActivity.this, "开始缓存", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNext(News news) {
-                newsList.add(news);
             }
 
             @Override
@@ -333,7 +350,7 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public void onComplete() {
-
+                Toast.makeText(MainActivity.this, "缓存完成", Toast.LENGTH_SHORT).show();
             }
         });
     }

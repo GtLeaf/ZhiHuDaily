@@ -150,13 +150,15 @@ public class PhotoCacheHelper {
 
 
     //应该改名为getBitmap!!!
-    public void loadBitmap(String url, int what){
+    public void getBitmap(String url, int what){
         //从缓存中获取Bitmap
         Bitmap bitmap = mMemoryCache.get(url);
-        //如果不在缓存中
+        //如果在缓存中
         if(null != bitmap){
+            LogUtil.d("白盒测试", "内存中存在数据");
             sendBitmapByMessage(bitmap, what);
         }else {
+            LogUtil.d("白盒测试", "内存中不存在数据");
             //开启线程查询
             service.execute(new ImageRunnable(url, what));
         }
@@ -224,9 +226,11 @@ public class PhotoCacheHelper {
             in = new BufferedInputStream(response.body().byteStream(), 8*1024);
             out = new BufferedOutputStream(outputStream, 8*1024);
             int b;
+            LogUtil.d("白盒测试", "网络获取成功");
             while ((b = in.read()) != -1){
                 out.write(b);
             }
+            LogUtil.d("白盒测试", "将数据写入硬盘");
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -254,6 +258,7 @@ public class PhotoCacheHelper {
         //如果内存缓存中获取不到,将其添加到内存缓存
         if (null == getBitmapFromMemoryCache(url)){
             mMemoryCache.put(url, bitmap);
+            LogUtil.d("白盒测试", "将数据加载入内存");
         }
     }
 
@@ -317,6 +322,7 @@ public class PhotoCacheHelper {
             try {
                 snapshot = mDiskCache.get(key);
                 if (null == snapshot){
+                    LogUtil.d("白盒测试", "硬盘中不存在数据");
                     // 如果对应的硬盘缓存没找到，就开始网络请求，并且写入缓存
                     DiskLruCache.Editor editor = mDiskCache.edit(key);
                     if (editor != null){
@@ -324,6 +330,7 @@ public class PhotoCacheHelper {
                         if (downloadImage(url, outputStream)){
                             editor.commit();
                         }else {
+                            LogUtil.d("白盒测试", "网络获取失败");
                             editor.abort();
                         }
                     }
@@ -346,9 +353,7 @@ public class PhotoCacheHelper {
                 if(imageView != null){
                     mHandler.post(() -> imageView.setImageBitmap(bitmap));
                 }
-                if (what != 0){
-                    sendBitmapByMessage(bitmap, what);
-                }
+                sendBitmapByMessage(bitmap, what);
             }
         }
     }
@@ -358,6 +363,10 @@ public class PhotoCacheHelper {
      * @param bitmap 图片
      */
     private void sendBitmapByMessage(Bitmap bitmap, int what){
+        LogUtil.d("白盒测试", "返回数据");
+        if (0 == what){
+            return;
+        }
         //发送消息
         Message message = Message.obtain();
         message.what = what;

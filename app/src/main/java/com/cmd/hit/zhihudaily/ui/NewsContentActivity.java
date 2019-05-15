@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmd.hit.zhihudaily.R;
+import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
 import com.cmd.hit.zhihudaily.model.remote.ServiceCreator;
 import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
@@ -22,7 +23,9 @@ import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.viewModel.NewsContentViewModel;
 
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -83,11 +86,29 @@ public class NewsContentActivity extends AppCompatActivity{
         model.getNewsObservable(newsId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(news -> {
-                    wv_newsContent.loadDataWithBaseURL(null, changeRowPitch(news.getBody(), 20), "text/html"
-                            , "utf-8", null);
-                    tv_newsContentTitle.setText(news.getTitle());
-                    PhotoCacheHelper.getInstance().loadBitmap(news.getImage(), iv_newsContentTitle);
+                .subscribe(new Observer<News>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(News news) {
+                        wv_newsContent.loadDataWithBaseURL(null, changeRowPitch(news.getBody(), 20), "text/html"
+                                , "utf-8", null);
+                        tv_newsContentTitle.setText(news.getTitle());
+                        PhotoCacheHelper.getInstance().loadBitmap(news.getImage(), iv_newsContentTitle);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
                 });
     }
 

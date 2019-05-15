@@ -1,12 +1,14 @@
 package com.cmd.hit.zhihudaily.model.repository;
 
 import android.content.Context;
+import android.util.LruCache;
 
 import com.cmd.hit.zhihudaily.model.bean.BeforeNews;
 import com.cmd.hit.zhihudaily.model.bean.LatestNews;
 import com.cmd.hit.zhihudaily.model.bean.News;
 import com.cmd.hit.zhihudaily.model.local.dao.NewsDao;
 import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
+import com.cmd.hit.zhihudaily.other.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,6 +23,7 @@ import io.reactivex.Observable;
 public class NewsRepository {
     private NewsDao dao;
     private NewsService network;
+    private static LruCache<String, BeforeNews> beforeNewsLruCache = new LruCache<>(1024*8);
 
     public NewsRepository(NewsDao dao, NewsService network){
         this.dao = dao;

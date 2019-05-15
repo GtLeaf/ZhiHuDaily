@@ -69,4 +69,9 @@ public class SPUtil {
     public static void setContext(Context context) {
         SPUtil.context = context;
     }
+
+    public static void clearMemory(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().clear().apply();
+    }
 }

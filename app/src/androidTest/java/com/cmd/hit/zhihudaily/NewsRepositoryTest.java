@@ -12,6 +12,7 @@ import com.cmd.hit.zhihudaily.model.remote.ServiceCreator;
 import com.cmd.hit.zhihudaily.model.remote.api.NewsService;
 import com.cmd.hit.zhihudaily.model.repository.NewsRepository;
 import com.cmd.hit.zhihudaily.other.LogUtil;
+import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
 import com.cmd.hit.zhihudaily.other.SPUtil;
 
 import org.junit.Before;
@@ -143,8 +144,8 @@ public class NewsRepositoryTest {
 
                     @Override
                     public void onNext(BeforeNews beforeNews) {
-                        Log.d(TAG, beforeNews.getDate());
-                        Log.d(TAG, beforeNews.getStories().get(0).getTitle());
+                        LogUtil.d(TAG, beforeNews.getDate());
+                        LogUtil.d(TAG, beforeNews.getStories().get(0).getTitle());
                     }
 
                     @Override
@@ -169,5 +170,15 @@ public class NewsRepositoryTest {
         SPUtil.setContext(context);
         String LatestNewsInfo = SPUtil.get(key, "");
         LogUtil.d(TAG, LatestNewsInfo);
+    }
+    /*
+    * 测试图片缓存
+    * */
+    @Test
+    public void getBitmapTest(){
+        String url = "https://pic4.zhimg.com/v2-5a8236d37996f3cc8cd9e12e4b069c7f.jpg";
+        PhotoCacheHelper.init(context);
+        PhotoCacheHelper.getInstance().getBitmap(url, 0);
+        PhotoCacheHelper.getInstance().getBitmap(url, 0);
     }
 }

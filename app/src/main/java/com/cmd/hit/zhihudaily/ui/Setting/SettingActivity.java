@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.cmd.hit.zhihudaily.R;
 import com.cmd.hit.zhihudaily.other.PhotoCacheHelper;
+import com.cmd.hit.zhihudaily.other.SPUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,8 @@ public class SettingActivity extends AppCompatActivity {
                 }
                 if(str2.get(arg2).equals("清除缓存")){
                     PhotoCacheHelper.getInstance().clearDiskMemory();
+                    SPUtil.clearMemory();
+                    Toast.makeText(SettingActivity.this, "清除缓存完成", Toast.LENGTH_SHORT).show();
                 }
 
             }
