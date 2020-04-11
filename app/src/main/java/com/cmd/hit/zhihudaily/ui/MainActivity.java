@@ -61,9 +61,9 @@ import io.reactivex.schedulers.Schedulers;
 //链接MUMU模拟器的命令行，命令：adb connect 127.0.0.1:7555
 public class MainActivity extends AppCompatActivity{
 
-    private static MainActivity instance;
+    private static WeakReference<MainActivity> instance;
     public static MainActivity getInstance(){
-        return instance;
+        return instance.get();
     }
 
     //view
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        instance = this;
+        instance = new WeakReference<>(this);
 
         init();
         setListener();
